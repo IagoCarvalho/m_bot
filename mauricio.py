@@ -1,10 +1,14 @@
+from flask import Flask
 from telegram.ext import Updater, CommandHandler
 from keys import BOT_TOKEN, FILE_PATH
+from utils import DECISION_LIST, NAMES
 
-# import requests
 import json
-import re
 import random
+
+
+app = Flask(__name__)
+
 
 def parse_quotes(file_path):
     quotes_list = list()
@@ -28,14 +32,32 @@ def say_it(bot, update):
 
     bot.send_message(chat_id=update.effective_chat.id, text=random_quote)
 
-def main():
+def decide(bot, update):
+    chat_id = update.message.chat_id
+    decision = random.choice(DECISION_LIST)
+
+    bot.send_message(chat_id=update.effective_chat.id, text=decision)
+
+
+def choose(bot, update):
+    chat_id = update.message.chat_id
+    option = random.choice(NAMES)
+
+    bot.send_message(chat_id=update.effective_chat.id, text=option)
+
+
+@app.route('/')
+def lets_goo():
     updater = Updater(BOT_TOKEN)
-    
+
     dp = updater.dispatcher
     dp.add_handler(CommandHandler('fala_mauricio', say_it))
+    dp.add_handler(CommandHandler('decide_mauricio', decide))
+    dp.add_handler(CommandHandler('escolhe_mauricio', choose))
 
     updater.start_polling()
     updater.idle()
-    
-if __name__ == '__main__':
-    main()
+
+
+while True:
+    lets_goo()
